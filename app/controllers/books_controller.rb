@@ -1,6 +1,6 @@
 class BooksController < ApplicationController
-#  before_action :logged_in_book, only: [:index, :edit, :update]
-#  before_action :correct_book,   only: [:edit, :update]
+  before_action :logged_in_user, only: [:show, :index, :edit, :update]
+  before_action :admin_user,   only: [:edit, :update]
 
   def index
     @books = Book.all
@@ -11,7 +11,12 @@ class BooksController < ApplicationController
   end
 
   def edit
-    @book = Book.find(params[:id])
+      begin
+        @book = Book.find(params[:id])
+      rescue
+        redirect_to action: 'index'
+      end
+      #@book = Book.find_by(params[:id])
   end
 
   def new
@@ -24,15 +29,18 @@ class BooksController < ApplicationController
       flash[:success] = "your book inserted!"
       redirect_to action: 'index'
     else
-      redirect_to action: 'index'
+      render 'new'
     end
   end
 
   def update
     @book = Book.find(params[:id])
-    @book.update_attributes(book_params)
+    if @book.update_attributes(book_params)
       flash[:success] = "book updated"
       redirect_to action: 'index'
+    else
+      render 'show'
+    end
   end
 
   def search
@@ -51,6 +59,28 @@ class BooksController < ApplicationController
     def book_params
       params.require(:book).permit(:title, :author, :publisher,
                                    :genre)
+    end
+
+    # beforeアクション
+
+    # ログイン済みユーザーかどうか確認
+    def logged_in_user
+      unless logged_in?
+        store_location
+        flash[:danger] = "Please log in."
+        redirect_to login_url
+      end
+    end
+
+    # 正しいユーザーかどうか確認
+    def correct_user
+      @user = Book.find(params[:id])
+      redirect_to(root_url) unless current_user?(@user)
+    end
+
+    # 管理者かどうか確認
+    def admin_user
+      redirect_to(root_url) unless current_user.admin?
     end
 
 end

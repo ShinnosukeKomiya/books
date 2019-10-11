@@ -6,8 +6,12 @@
     <a href="https://railstutorial.jp/">Ruby on Rails Tutorial</a>
     books application.
   </h2>
-
+<% if logged_in? %>
+  <h1> Welcome! </h1>
+<% else %>
   <%= link_to "Sign up now!", signup_path, class: "btn btn-lg btn-primary" %>
+
+<% end %>
 </div>
 
 <%= link_to image_tag("comic1.png", alt: "Rails logo"),

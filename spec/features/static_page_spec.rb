@@ -2,7 +2,7 @@ require 'rails_helper'
 RSpec.feature "StaticPages", type: :feature do
 
   describe "Home page" do
-    before do
+    before  do
       visit root_path   # 名前付きルートを使用
     end
 #

@@ -1,43 +1,48 @@
 require 'rails_helper'
 
-RSpec.describe "User pages", type: :request do
+RSpec.describe "Book delete", type: :request do
   let(:user) { FactoryBot.create(:user) }
+  let(:other_user) { FactoryBot.create(:user) }
+  let(:book) { FactoryBot.create(:book) }
 
-  # newアクションのテストは省略
+    # 他のアクションのテストは省略
 
-  describe "GET #show" do
-
-    # ログイン済みのユーザーとして
-    context "as an authenticated user" do
-      # 正常なレスポンスを返すこと
-      it "responds successfully" do
-        sign_in_as user
-        get user_path(user)
-        expect(response).to be_success
-        expect(response).to have_http_status "200"
-      end
-    end
-
-    # ログインしていないユーザーの場合
-    context "as a guest" do
-      # ログイン画面にリダイレクトすること
-      it "redirects to the login page" do
-        get user_path(user)
-        expect(response).to redirect_to login_path
-      end
-    end
-
-    # アカウントが違うユーザーの場合
-    context "as other user" do
+    describe "#destroy" do
+    # 認可されたユーザーとして
+    context "as an authorized user" do
+      # ユーザーを削除できること
       before do
-        @other_user = FactoryBot.create(:user)
+        sign_in_as user
+        FactoryBot.create(:book)
+        redirect_to books_path
+      end
+      it "deletes a book" do
+        expect {
+          delete book_path(book), params: { id: book.id }
+        }.to change(Book, :count).by(-1)
+      end
+    end
+
+    # アカウントの違うユーザーの場合
+    context "as au unauthorized user" do
+      # ホーム画面にリダイレクトすること
+      it "redirects to the dashboard" do
+        sign_in_as other_user
+        delete user_path(user), params: { id: user.id }
+        expect(response).to redirect_to root_path
+      end
+    end
+
+    # ゲストとして
+    context "as a guest" do
+      it "returns a 302 response" do
+        delete user_path(user), params: { id: user.id }
+        expect(response).to have_http_status "302"
       end
 
-      # ホーム画面にリダイレクトすること
-      it "redirects to the login page" do
-        sign_in_as @other_user
-        get user_path(user)
-        expect(response).to redirect_to root_path
+      it "redirects to the sign-in page" do
+        delete user_path(user), params: { id: user.id }
+        expect(response).to redirect_to login_path
       end
     end
   end
