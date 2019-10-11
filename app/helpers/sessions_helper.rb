@@ -58,4 +58,5 @@ module SessionsHelper # 総じてmodel/user.rbで定義した関数を多用し�
   def store_location
     session[:forwarding_url] = request.original_url if request.get?
   end
+
 end

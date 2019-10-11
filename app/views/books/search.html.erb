@@ -1,0 +1,26 @@
+<p>検索</p>
+<%= form_tag(search_path,:method => 'get') do %>
+  <%= text_field_tag :search %>
+  <%= submit_tag 'Search', :name => nil %>
+<% end %>
+
+<ul>
+  <table class="list" border="1">
+    <tr>
+      <th>ID</th>
+      <th>タイトル</th>
+      <th>著者</th>
+      <th>出版社</th>
+      <th>ジャンル</th>
+    </tr>
+    <% @books.each do |book| %>
+    <tr>
+      <td><%= link_to "#{book.id}", book, method: :get %></td>
+      <td><%= book.title %></td>
+      <td><%= book.author %></td>
+      <td><%= book.publisher %></td>
+      <td><%= book.genre %></td>
+    </tr>
+    <% end %>
+  </table>
+ </ul>
